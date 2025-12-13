@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: name-vault-js
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  storageClassName: manual  # Static provisioning
+  capacity:
+    storage: 5Gi  # Adjust size as needed
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/data/mongodb"  # Directory created in prerequisites
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: name-vault-js
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi  # Must match or be <= PV capacity
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  namespace: name-vault-js
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-storage
+          mountPath: /data/db  # Default MongoDB data directory
+      volumes:
+      - name: mongo-storage
+        persistentVolumeClaim:
+          claimName: mongo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+  namespace: name-vault-js
+spec:
+  selector:
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: name-vault-js-deployment
+  namespace: name-vault-js
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: name-vault-js
+  template:
+    metadata:
+      labels:
+        app: name-vault-js
+    spec:
+      containers:
+      - name: name-vault-js
+        image: masum012924/name-vault-js:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo-service:27017/mydb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: name-vault-js-service
+  namespace: name-vault-js
+spec:
+  type: NodePort  # Or LoadBalancer if using minikube tunnel
+  selector:
+    app: name-vault-js
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000  # Optional, for NodePort

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Name Vault</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --gray: #6b7280;
+      --light: #f3f4f6;
+      --danger: #ef4444;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem 1rem;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    header p {
+      margin: 0.5rem 0 0;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    .content {
+      padding: 2rem;
+    }
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 1.1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.3s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+    button {
+      padding: 14px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    .names-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .name-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.2rem;
+      background: var(--light);
+      margin-bottom: 10px;
+      border-radius: 12px;
+      transition: all 0.3s;
+      animation: fadeIn 0.5s ease-out;
+    }
+    .name-item:hover {
+      transform: translateX(8px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .name-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+    .delete-btn {
+      background: var(--danger);
+      padding: 8px 12px;
+      font-size: 1rem;
+    }
+    .delete-btn:hover {
+      background: #dc2626;
+    }
+    .empty-state {
+      text-align: center;
+      color: var(--gray);
+      font-size: 1.2rem;
+      padding: 3rem 1rem;
+    }
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.4s;
+    }
+    .toast.show {
+      opacity: 1;
+      bottom: 40px;
+    }
+    .loading {
+      text-align: center;
+      color: var(--gray);
+      padding: 2rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 480px) {
+      .form-group { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Name Vault</h1>
+      <p>Add and manage names instantly</p>
+    </header>
+    <div class="content">
+      <div class="form-group">
+        <input type="text" id="nameInput" placeholder="Enter a name..." autocomplete="off" />
+        <button id="addBtn">Add Name</button>
+      </div>
+
+      <ul id="nameList" class="names-list"></ul>
+
+      <div id="loading" class="loading" style="display:none;">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No names yet. Add one above!</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const nameInput = document.getElementById('nameInput');
+    const addBtn = document.getElementById('addBtn');
+    const nameList = document.getElementById('nameList');
+    const loading = document.getElementById('loading');
+    const emptyState = document.getElementById('emptyState');
+    const toast = document.getElementById('toast');
+
+    function showToast(message, isError = false) {
+      toast.textContent = message;
+      toast.style.background = isError ? '#ef4444' : '#10b981';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    async function fetchNames() {
+      loading.style.display = 'block';
+      emptyState.style.display = 'none';
+      try {
+        const res = await fetch('/names');
+        const names = await res.json();
+        
+        nameList.innerHTML = '';
+        if (names.length === 0) {
+          emptyState.style.display = 'block';
+        } else {
+          names.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'name-item';
+            li.innerHTML = `
+              <span class="name-text">${item.name}</span>
+              <button class="delete-btn" onclick="deleteName('${item._id}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            `;
+            nameList.appendChild(li);
+          });
+        }
+      } catch (err) {
+        showToast('Failed to load names', true);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    async function addName() {
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      addBtn.disabled = true;
+      addBtn.textContent = 'Adding...';
+
+      try {
+        await fetch('/names', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        nameInput.value = '';
+        showToast(`${name} added!`);
+        fetchNames();
+      } catch (err) {
+        showToast('Failed to add name', true);
+      } finally {
+        addBtn.disabled = false;
+        addBtn.textContent = 'Add Name';
+      }
+    }
+
+    async function deleteName(id) {
+      if (!confirm('Delete this name permanently?')) return;
+
+      try {
+        await fetch(`/names/${id}`, { method: 'DELETE' });
+        showToast('Name deleted');
+        fetchNames();
+      } catch (err) {
+        showToast('Delete failed', true);
+      }
+    }
+
+    // Event listeners
+    addBtn.addEventListener('click', addName);
+    nameInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') addName();
+    });
+
+    // Load names on start
+    fetchNames();
+  </script>
+</body>
+</html>

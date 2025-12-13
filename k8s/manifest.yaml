@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: name-vault-js
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  namespace: name-vault-js
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+  namespace: name-vault-js
+spec:
+  selector:
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: name-vault-js-deployment
+  namespace: name-vault-js
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: name-vault-js
+  template:
+    metadata:
+      labels:
+        app: name-vault-js
+    spec:
+      containers:
+      - name: name-vault-js
+        image: masum012924/name-vault-js:latest # You'll push this to a registry or use minikube's docker-env
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo-service:27017/mydb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: name-vault-js-service
+  namespace: name-vault-js
+spec:
+  type: NodePort  # Or LoadBalancer if using minikube tunnel
+  selector:
+    app: name-vault-js
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000  # Optional, for NodePort
