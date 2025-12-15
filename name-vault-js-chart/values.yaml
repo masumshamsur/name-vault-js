@@ -1,0 +1,15 @@
+namespace: name-vault-js
+
+app:
+  image: masum012924/name-vault-js:latest
+  replicas: 1
+  port: 3000
+  nodePort: 30000
+
+mongo:
+  image: mongo:latest
+  replicas: 1
+  storageSize: 5Gi
+  port: 27017
+
+mongoUri: mongodb://mongo-service:27017/mydb
