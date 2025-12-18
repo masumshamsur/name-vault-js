@@ -50,6 +50,8 @@ app.get('/metrics', async (req, res) => {  // <-- Add this route
   res.end(await client.register.metrics());
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App running on http://localhost:${port}`);
 });
+
+module.exports = app;  // ← ADD THIS LINE (for testing)
