@@ -2,10 +2,10 @@ name: CI - Build, Test & Docker
 
 on:
   workflow_dispatch:
-  #push:
-    #branches: [ main ]     # Adjust branches as needed
-  #pull_request:
-    #branches: [ main ]
+  push:
+    branches: [ main ]     # Adjust branches as needed
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-and-test:
