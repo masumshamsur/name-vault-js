@@ -1,0 +1,43 @@
+name: CI - Build, Test & Docker
+
+on:
+   workflow_dispatch:
+  #push:
+    #branches: [ main ]     # Adjust branches as needed
+  #pull_request:
+    #branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: cd app && npm ci
+
+      # 4. Run unit tests
+      - name: Run tests
+        run: cd app && npm test -- --coverage --testResultsProcessor=jest-junit
+
+      # 5. Upload test results (JUnit format for better GitHub integration)
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()  # Upload even if tests fail
+        with:
+          name: test-results
+          path: |
+            app/junit.xml
+            app/coverage/
