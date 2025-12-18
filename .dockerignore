@@ -1,0 +1,47 @@
+# Node.js / npm
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Build artifacts & logs
+*.log
+dist/
+build/
+
+# Tests and coverage
+tests/
+__mocks__/
+coverage/
+jest.config.js
+*.test.js
+*.spec.js
+
+# Kubernetes and Helm (no need in image)
+k8s/
+name-vault-js-chart/
+*.yaml
+*.yml
+
+# Git and OS files
+.git
+.gitignore
+.gitkeep
+.DS_Store
+Thumbs.db
+
+# Docker files (avoid recursion)
+Dockerfile
+.dockerignore
+
+# Editor / IDE files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Environment files (if you have any)
+.env
+.env.local
+
+
+README.md
