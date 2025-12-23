@@ -50,8 +50,12 @@ app.get('/metrics', async (req, res) => {  // <-- Add this route
   res.end(await client.register.metrics());
 });
 
-const server = app.listen(port, () => {
-  console.log(`App running on http://localhost:${port}`);
-});
+let server;
+// Only start server if not running in tests
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, () => {
+    console.log(`App running on http://localhost:${port}`);
+  });
+}
 
-module.exports = app;  // ← ADD THIS LINE (for testing)
+module.exports = { app, server }; // ← ADD THIS LINE (for testing)
