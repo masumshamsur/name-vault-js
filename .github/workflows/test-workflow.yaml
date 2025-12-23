@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
 
@@ -30,7 +30,7 @@ jobs:
 
       # 4. Run unit tests
       - name: Run tests
-        run: cd app && npm test -- --coverage --testResultsProcessor=jest-junit
+        run: cd app && npm test -- --coverage --reporters=default --reporters=jest-junit
 
       # 5. Upload test results (JUnit format for better GitHub integration)
       - name: Upload test results
