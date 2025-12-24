@@ -42,13 +42,39 @@ jobs:
             app/junit.xml
             app/coverage/
 
-       # 6. Docker setup
+      # 6. Docker setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-        # 7. Login to Docker Hub
+      # 7. Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 8. Extract metadata for Docker image
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: masum012924/name-vault-js
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+
+    
+      # 9. Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64  # Optional: remove if you don't need multi-arch
+
+      # 10. Output image digest
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}         
