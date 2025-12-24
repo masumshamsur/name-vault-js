@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test-docker:
+  build-test-docker-image:
     runs-on: ubuntu-latest
 
     steps:
@@ -66,6 +66,7 @@ jobs:
     
       # 9. Build and push Docker image
       - name: Build and push Docker image
+        id: docker_build
         uses: docker/build-push-action@v6
         with:
           context: .
