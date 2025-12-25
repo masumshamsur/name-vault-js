@@ -16,6 +16,7 @@ spec:
       containers:
       - name: name-vault-js
         image: {{ .Values.app.image }}
+        imagePullPolicy: Always   # <-- Add this line
         ports:
         - containerPort: {{ .Values.app.port }}
         env:

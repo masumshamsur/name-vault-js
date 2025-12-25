@@ -89,6 +89,7 @@ spec:
       containers:
       - name: name-vault-js
         image: masum012924/name-vault-js:latest
+        imagePullPolicy: Always   # <-- Add this line
         ports:
         - containerPort: 3000
         env:
