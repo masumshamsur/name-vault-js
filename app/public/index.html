@@ -147,6 +147,17 @@
       color: var(--gray);
       padding: 2rem;
     }
+    .footer {
+      background: #f8fafc;
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.95rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer strong {
+      color: #374151;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -179,8 +190,12 @@
         <i class="fas fa-inbox"></i>
         <p>No names yet. Add one above!</p>
       </div>
-    </div>
-  </div>
+    </div> <!-- end of .content -->
+
+    <footer class="footer">
+      <p>Powered and developed with ❤️ by <strong>Shamsur Rahman Masum</strong></p>
+    </footer>
+  </div> <!-- end of .container -->
 
   <div id="toast" class="toast"></div>
 
