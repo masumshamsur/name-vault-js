@@ -1,7 +1,7 @@
 namespace: name-vault-js
 
 app:
-  image: masum012924/name-vault-js:latest
+  image: masum012924/name-vault-js:sha-690c888
   replicas: 1
   port: 3000
   nodePort: 30000
