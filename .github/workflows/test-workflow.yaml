@@ -1,5 +1,8 @@
 name: CI - Build, Test & Docker-image
 
+permissions:
+  contents: write
+  
 on:
   workflow_dispatch:
   push:
