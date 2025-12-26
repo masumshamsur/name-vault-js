@@ -105,5 +105,5 @@ jobs:
           git commit -m "chore: update image tag to $IMAGE_TAG [skip ci]" || echo "No changes to commit"
           
           # Set remote URL with PAT for push permission
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git || echo "Nothing to push (no changes)"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main 
           
