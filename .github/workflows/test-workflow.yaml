@@ -75,7 +75,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64  # Optional: remove if you don't need multi-arch
+  
 
-      # 10. Output image digest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}         
+      # 10. NEW: Get the image digest and SHA tag
+      - name: Get image tag (SHA)
+        id: image_tag
+        run: |
+          SHA_TAG=$(echo ${{ steps.meta.outputs.tags }} | grep -o 'masum012924/name-vault-js:sha-[a-f0-9]\+' || echo "masum012924/name-vault-js:latest")
+          echo "image_full_tag=$SHA_TAG" >> $GITHUB_OUTPUT
+          echo "Using image tag: $SHA_TAG"
