@@ -92,6 +92,7 @@ jobs:
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_full_tag }}
           GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}  # Make sure this secret exists!
         run: |
+         echo "Token starts with: ${GH_PUSH_TOKEN:0:5}..."  # Only first 5 chars for safety
           # Update the image tag in values.yaml
           sed -i "s|image: masum012924/name-vault-js:.*|image: $IMAGE_TAG|" name-vault-js-chart/values.yaml
           
