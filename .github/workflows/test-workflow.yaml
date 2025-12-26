@@ -81,6 +81,7 @@ jobs:
       - name: Get image tag (SHA)
         id: image_tag
         run: |
-          SHA_TAG=$(echo ${{ steps.meta.outputs.tags }} | grep -o 'masum012924/name-vault-js:sha-[a-f0-9]\+' || echo "masum012924/name-vault-js:latest")
+          SHA_TAG=$(echo "${{ steps.meta.outputs.tags }}" | grep 'sha-' || echo "masum012924/name-vault-js:latest")
+          SHA_TAG=$(echo "$SHA_TAG" | tr -d '[:space:]')  # Remove any whitespace/newlines
           echo "image_full_tag=$SHA_TAG" >> $GITHUB_OUTPUT
-          echo "Using image tag: $SHA_TAG"
+          echo "Selected tag: $SHA_TAG"
