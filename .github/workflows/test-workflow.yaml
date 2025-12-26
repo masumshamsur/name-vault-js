@@ -90,22 +90,20 @@ jobs:
       - name: Update Helm values.yaml and push
         env:
           IMAGE_TAG: ${{ steps.image_tag.outputs.image_full_tag }}
-          GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}  # Make sure this secret exists!
+          
         run: |
-         echo "Token starts with: ${GH_PUSH_TOKEN:0:5}..."  # Only first 5 chars for safety
+          # echo "Token starts with: ${GH_PUSH_TOKEN:0:5}..."  # Only first 5 chars for safety
           # Update the image tag in values.yaml
           sed -i "s|image: masum012924/name-vault-js:.*|image: $IMAGE_TAG|" name-vault-js-chart/values.yaml
           
           # Configure git
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
           
           # Stage and commit
           git add name-vault-js-chart/values.yaml
           git commit -m "chore: update image tag to $IMAGE_TAG [skip ci]" || echo "No changes to commit"
           
           # Set remote URL with PAT for push permission
-          git remote set-url origin https://x-access-token:$GH_PUSH_TOKEN@github.com/masumshamsur/name-vault-js.git
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git || echo "Nothing to push (no changes)"
           
-          # Push
-          git push origin HEAD:main || echo "Nothing to push (no changes)"
