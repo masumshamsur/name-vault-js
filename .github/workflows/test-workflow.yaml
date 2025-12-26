@@ -87,12 +87,19 @@ jobs:
           echo "Selected tag: $SHA_TAG"
 
       # NEW: Update values.yaml with new image tag    
-      - name: Update Helm values.yaml
+      - name: Update Helm values.yaml and push
+        env:
+          IMAGE_TAG: ${{ steps.image_tag.outputs.image_full_tag }}
         run: |
-          sed -i "s|image: masum012924/name-vault-js:.*|image: ${{ steps.image_tag.outputs.image_full_tag }}|" name-vault-js-chart/values.yaml
-
+          sed -i "s|image: masum012924/name-vault-js:.*|image: $IMAGE_TAG|" name-vault-js-chart/values.yaml
+          
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
           git add name-vault-js-chart/values.yaml
-          git commit -m "chore: update image tag to ${{ steps.image_tag.outputs.image_full_tag }} [skip ci]" || echo "No changes to commit"
-          git push || echo "No changes to push"
+          git commit -m "chore: update image tag to $IMAGE_TAG [skip ci]" || echo "No changes to commit"
+          
+          # Use the PAT for authenticated push
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PUSH_TOKEN }}@github.com/masumshamsur/name-vault-js.git
+          
+          git push origin HEAD:main || echo "Failed to push (might be no changes)"
